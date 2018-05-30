@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TestObservability</string>
+    <string name="get_button_text">Get normally</string>
+    <string name="get_error_button_text">Get with error</string>
+    <string name="status_idle">Status: idle</string>
+    <string name="status_loading">Status: loading…</string>
+    <string name="result_success">Result: %s</string>
+    <string name="result_error">Result: There was an error!</string>
+</resources>
