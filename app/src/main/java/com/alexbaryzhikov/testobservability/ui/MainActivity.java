@@ -11,14 +11,14 @@ import com.alexbaryzhikov.testobservability.R;
 import com.alexbaryzhikov.testobservability.data.MyModel;
 import com.alexbaryzhikov.testobservability.di.Injection;
 
-import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
 
   private static final String TAG = "MainActivity";
 
-  private final CompositeDisposable disposables = new CompositeDisposable();
   private MyViewModel viewModel;
+  private Disposable disposable;
 
   private TextView statusView;
   private TextView dataView;
@@ -38,21 +38,19 @@ public class MainActivity extends AppCompatActivity {
     ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyViewModel.class);
 
+    // Subscribe to incoming stream
+    disposable = viewModel.getObservable().subscribe(this::render, this::error);
+
     // Setup buttons
-    getNormalButton.setOnClickListener(v -> subscribeTo("Hello world!"));
-    getCorruptButton.setOnClickListener(v -> subscribeTo("Rogue bytes"));
-    getErrorButton.setOnClickListener(v -> subscribeTo("Erroneous"));
+    getNormalButton.setOnClickListener(v -> viewModel.onClick("Hello world!"));
+    getCorruptButton.setOnClickListener(v -> viewModel.onClick("Rogue bytes"));
+    getErrorButton.setOnClickListener(v -> viewModel.onClick("Erroneous"));
   }
 
   @Override
   protected void onStop() {
     super.onStop();
-    disposables.clear();
-  }
-
-  private void subscribeTo(String modelId) {
-    disposables.add(viewModel.requestData(modelId)
-        .subscribe(MainActivity.this::render, this::error));
+    disposable.dispose();
   }
 
   private void render(Resource<MyModel> resource) {
