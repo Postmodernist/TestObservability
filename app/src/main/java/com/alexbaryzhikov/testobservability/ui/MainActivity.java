@@ -8,13 +8,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.alexbaryzhikov.testobservability.R;
+import com.alexbaryzhikov.testobservability.data.MyModel;
 import com.alexbaryzhikov.testobservability.di.Injection;
 
-import java.util.concurrent.CancellationException;
-
-import io.reactivex.SingleObserver;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
   private MyViewModel viewModel;
 
   private TextView statusView;
+  private TextView dataView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +29,9 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
 
     statusView = findViewById(R.id.status);
-    Button getButton = findViewById(R.id.get_normal);
+    dataView = findViewById(R.id.data);
+    Button getNormalButton = findViewById(R.id.get_normal);
+    Button getCorruptButton = findViewById(R.id.get_corrupt);
     Button getErrorButton = findViewById(R.id.get_error);
 
     // Get view model
@@ -39,14 +39,9 @@ public class MainActivity extends AppCompatActivity {
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyViewModel.class);
 
     // Setup buttons
-    getButton.setOnClickListener(v -> subscribeTo("Hello world!"));
+    getNormalButton.setOnClickListener(v -> subscribeTo("Hello world!"));
+    getCorruptButton.setOnClickListener(v -> subscribeTo("Rogue bytes"));
     getErrorButton.setOnClickListener(v -> subscribeTo("Erroneous"));
-  }
-
-  @Override
-  protected void onStart() {
-    super.onStart();
-    render(getString(R.string.status_idle));
   }
 
   @Override
@@ -56,32 +51,21 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void subscribeTo(String modelId) {
-    viewModel.getMyModelData(modelId)
-        .subscribe(new SingleObserver<String>() {
-          @Override
-          public void onSubscribe(Disposable d) {
-            disposables.add(d);
-            render(getString(R.string.status_loading));
-          }
-
-          @Override
-          public void onSuccess(String s) {
-            render(getString(R.string.result_success, s));
-          }
-
-          @Override
-          public void onError(Throwable e) {
-            if (e instanceof CancellationException) {
-              Log.d(TAG, "onError: Loading aborted");
-            } else {
-              render(getString(R.string.result_error));
-              Log.e(TAG, "onError: Unable to get data", e);
-            }
-          }
-        });
+    disposables.add(viewModel.requestData(modelId)
+        .subscribe(MainActivity.this::render, this::error));
   }
 
-  private void render(String msg) {
-    statusView.setText(msg);
+  private void render(Resource<MyModel> resource) {
+    String status = getString(R.string.status, resource.getStatus().name());
+    String data = getString(R.string.data,
+        resource.getData() != null ? resource.getData().getId() : "N/A");
+
+    statusView.setText(status);
+    dataView.setText(data);
+  }
+
+  private void error(Throwable throwable) {
+    Log.e(TAG, "error: Stream malfunction", throwable);
+    this.finishAffinity();
   }
 }

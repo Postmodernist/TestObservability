@@ -1,9 +1,10 @@
 <resources>
     <string name="app_name">TestObservability</string>
-    <string name="get_button_text">Get normally</string>
-    <string name="get_error_button_text">Get with error</string>
-    <string name="status_idle">Status: idle</string>
-    <string name="status_loading">Status: loading…</string>
-    <string name="result_success">Result: %s</string>
-    <string name="result_error">Result: There was an error!</string>
+    <string name="get_normal_text">Get normal data</string>
+    <string name="get_corrupt_text">Get corrupt data</string>
+    <string name="get_error_text">Stream error</string>
+    <string name="status">Status: %s</string>
+    <string name="data">Data: %s</string>
+    <string name="status_idle">Status: IDLE</string>
+    <string name="data_na">Data: N/A</string>
 </resources>
