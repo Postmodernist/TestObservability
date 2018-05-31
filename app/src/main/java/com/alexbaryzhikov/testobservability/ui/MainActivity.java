@@ -38,13 +38,17 @@ public class MainActivity extends AppCompatActivity {
     ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
     viewModel = ViewModelProviders.of(this, viewModelFactory).get(MyViewModel.class);
 
-    // Subscribe to incoming stream
-    disposable = viewModel.getObservable().subscribe(this::render, this::error);
-
     // Setup buttons
     getNormalButton.setOnClickListener(v -> viewModel.onClick("Hello world!"));
     getCorruptButton.setOnClickListener(v -> viewModel.onClick("Rogue bytes"));
     getErrorButton.setOnClickListener(v -> viewModel.onClick("Erroneous"));
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    // Subscribe to incoming stream
+    disposable = viewModel.getObservable().subscribe(this::render, this::error);
   }
 
   @Override
