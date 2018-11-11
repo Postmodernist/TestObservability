@@ -1,38 +1,34 @@
 package com.alexbaryzhikov.testobservability.ui;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-public class Resource<T> {
-  @NonNull private final Status status;
-  @Nullable private final T data;
+class Resource<T> {
+    private final T result;
 
-  private Resource(@NonNull Status status, @Nullable T data) {
-    this.status = status;
-    this.data = data;
-  }
+    public Resource(T result) {
+        this.result = result;
+    }
 
-  public static <T> Resource<T> success(@NonNull T data) {
-    return new Resource<>(Status.SUCCESS, data);
-  }
+    T getResult() {
+        return result;
+    }
 
-  public static <T> Resource<T> error(@Nullable T data) {
-    return new Resource<>(Status.ERROR, data);
-  }
+    static final class Success<T> extends Resource<T> {
+        Success(@NonNull T result) {
+            super(result);
+        }
+    }
 
-  public static <T> Resource<T> loading(@Nullable T data) {
-    return new Resource<>(Status.LOADING, data);
-  }
+    static final class Failure<T> extends Resource<T> {
+        Failure(@Nullable T result) {
+            super(result);
+        }
+    }
 
-  @NonNull
-  public Status getStatus() {
-    return status;
-  }
-
-  @Nullable
-  public T getData() {
-    return data;
-  }
-
-  public enum Status {SUCCESS, ERROR, LOADING}
+    static final class Loading<T> extends Resource<T> {
+        Loading() {
+            super(null);
+        }
+    }
 }

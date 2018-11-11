@@ -5,6 +5,6 @@
     <string name="get_error_text">Stream error</string>
     <string name="status">Status: %s</string>
     <string name="data">Data: %s</string>
-    <string name="status_idle">Status: IDLE</string>
+    <string name="status_idle">Status: Idle</string>
     <string name="data_na">Data: N/A</string>
 </resources>
